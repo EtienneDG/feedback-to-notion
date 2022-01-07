@@ -8,6 +8,13 @@
   "engines": {
     "vscode": "^1.62.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EtienneDG/feedback-to-notion"
+  },
+  "bugs": {
+    "url": "https://github.com/EtienneDG/feedback-to-notion/issues"
+  },
   "categories": [
     "Other"
   ],
