@@ -1,0 +1,120 @@
+{
+  "name": "feedback-to-notion",
+  "displayName": "Code feedbacks to Notion",
+  "publisher": "etiennedg",
+  "description": "A simple way to add feedbacks on pieces of code and store them on Notion",
+  "version": "0.0.1",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.62.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:feedback-to-notion.addFeedbackToFileFromEditor",
+    "onCommand:feedback-to-notion.addFeedbackToFileFromExplorer",
+    "onCommand:feedback-to-notion.addFeedbackToSelection"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "feedback-to-notion.addFeedbackToFileFromEditor",
+        "title": "[Notion] Add feedback to file"
+      },
+      {
+        "command": "feedback-to-notion.addFeedbackToFileFromExplorer",
+        "title": "[Notion] Add feedback to file"
+      },
+      {
+        "command": "feedback-to-notion.addFeedbackToSelection",
+        "title": "[Notion] Add feedback to selection"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "feedback-to-notion.addFeedbackToFileFromEditor",
+          "title": "[Notion] Add feedback to file",
+          "when": "editorIsOpen"
+        },
+        {
+          "command": "feedback-to-notion.addFeedbackToFileFromExplorer",
+          "title": "[Notion] Add feedback to file",
+          "when": "false"
+        },
+        {
+          "command": "feedback-to-notion.addFeedbackToSelection",
+          "title": "[Notion] Add feedback to selection",
+          "when": "editorHasSelection"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "feedback-to-notion.addFeedbackToFileFromExplorer",
+          "title": "[Notion] Add feedback to file",
+          "when": "explorerResourceIsFolder == false"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "feedback-to-notion.addFeedbackToSelection",
+          "title": "[Notion] Add feedback to selection",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "configuration": [
+      {
+        "title": "Notion",
+        "properties": {
+          "notion.token": {
+            "type": "string",
+            "markdownDescription": "Token provided by notion when adding the extension to your workspace (ie. `secret_xxxxx`)"
+          },
+          "notion.databaseId": {
+            "type": "string",
+            "description": "Your Feedback database ID (database IDs can found in Notion urls : https://www.notion.so/<workspace_name>/<databse_id>)"
+          },
+          "notion.myPersonId": {
+            "type": "string",
+            "markdownDescription": "Use your browser dev tools. Go to Notion > Click your name (top left) > My account. You should see a call to `getDataAccessConsent` with your user id in the response"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.62.0",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
+    "@vscode/test-electron": "^1.6.2",
+    "eslint": "^8.1.0",
+    "glob": "^7.1.7",
+    "mocha": "^9.1.3",
+    "ts-loader": "^9.2.5",
+    "tslint": "^6.1.3",
+    "typescript": "^4.4.4",
+    "webpack": "^5.52.1",
+    "webpack-cli": "^4.8.0"
+  },
+  "dependencies": {
+    "@notionhq/client": "^0.4.9",
+    "axios": "^0.24.0"
+  }
+}
