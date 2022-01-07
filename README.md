@@ -30,8 +30,3 @@ This extension contributes the following settings:
 `notion.databaseId` : Your Feedback database ID. Database IDs can found in Notion urls : https://www.notion.so/<workspace_name>/<databse_id>.
 
 `notion.myPersonId` :  Use your browser dev tools. Go to Notion > Click your name (top left) > My account. You should see a call to `getDataAccessConsent` with your user id in the response
-
-
-## 1.0.0
-
-Initial release
