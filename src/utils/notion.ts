@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { displayError } from "./logger";
-import { NumberType, PeopleType } from "./types";
+import { NumberType, TagsType } from "./types";
 
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -22,6 +22,12 @@ export class Notion {
         this.client = new Client({ auth: token });
     }
 
+    async getUser(userId: string): Promise<any> {
+        return this.client.users.retrieve({
+            user_id: userId
+        });
+    }
+
     async getPages(query: string): Promise<any> {
         console.debug("Notion API: query database");
         let { results } = await this.client.databases.query({
@@ -36,47 +42,50 @@ export class Notion {
         return results;
     }
 
-    async createPage(input: string, path: string, selection: string | null): Promise<void> {
+    async createPage(input: string, path: string, selection: string | null): Promise<string> {
         try {
             console.debug("Notion API: create page");
-            await this.client.pages.create({
+            const user = await this.getUser(this.myPersonId);
+            const createdPage: any = await this.client.pages.create({
                 parent: { database_id: this.databaseId },
                 properties: {
                     Feedback: { title: [{ text: { content: input } }] },
                     Counter: { number: 1 },
                     Creator: {
-                        people: [{
-                            id: this.myPersonId
-                        }]
+                        select: {
+                            name: user.name
+                        }
                     },
                     Contributors: {
-                        people: [{
-                            id: this.myPersonId
+                        multi_select: [{
+                            name: user.name
                         }]
                     }
                 },
-                children: this.feedbackToContent(path, selection)
+                children: this.feedbackToContent(path, selection, user)
             });
+            return createdPage.url;
         } catch (error) {
             throw error;
         }
     }
 
-    async updatePage(pageId: string, path: string, selection: string | null): Promise<void> {
+    async updatePage(pageId: string, path: string, selection: string | null): Promise<string> {
         const page: any = await this.client.pages.retrieve({ page_id: pageId });
+        const user = await this.getUser(this.myPersonId);
         const previousCounter = (page.properties.Counter as NumberType).number || 0;
-        const existingReporters = (page.properties.Contributors as PeopleType).people;
+        const existingReporters = (page.properties.Contributors as TagsType).multi_select;
 
-        const reporters = [{ id: this.myPersonId }].concat(existingReporters);
+        const reporters = [{ name: user.name }].concat(existingReporters);
 
         console.debug(`Notion API: update page ${pageId}`);
         try {
-            await this.client.pages.update({
+            const updatedPage: any = await this.client.pages.update({
                 page_id: pageId,
                 properties: {
                     Counter: { number: previousCounter + 1 },
                     Contributors: {
-                        people: reporters
+                        multi_select: reporters
                     }
 
 
@@ -84,13 +93,15 @@ export class Notion {
             });
             await this.client.blocks.children.append({
                 block_id: pageId,
-                children: this.feedbackToContent(path, selection)
+                children: this.feedbackToContent(path, selection, user)
             });
+            return updatedPage.url;
         } catch (error) {
             throw error;
         }
     }
-    private feedbackToContent(path: string, selection: string | null) {
+
+    private feedbackToContent(path: string, selection: string | null, user: any) {
         const today = new Date().toISOString().split("T")[0];
         const content: any = [
             {
@@ -103,15 +114,7 @@ export class Notion {
                                 }
                             }
                         },
-                        { text: { content: " " } },
-                        {
-                            mention: {
-                                user: {
-                                    id: this.myPersonId
-                                }
-                            }
-                        },
-
+                        { text: { content: ` ${user.name}` } }
                     ]
                 }
             },

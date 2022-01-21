@@ -18,8 +18,8 @@ You need to create an [custom integration](https://www.notion.so/my-integrations
 For now (07/01/2022), the fields in your feedback database should be the following : 
 - Feedback (text)
 - Tags (multi select)
-- Creator (person)
-- Contributors (person)
+- Creator (select)
+- Contributors (multi select)
 - Counter (number)
 
 ## Extension Settings

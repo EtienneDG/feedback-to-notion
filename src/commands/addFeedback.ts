@@ -39,7 +39,7 @@ export class AddFeedback implements ExtensionCommand {
         this.menuItems.push(...results.map((page: any) => MenuItem.pageToMenuItem(page)));
 
         this.quickPick = vscode.window.createQuickPick();
-        this.quickPick.placeholder = "Search by feedback title or tags";
+        this.quickPick.placeholder = "Upvote an existing feedback or create a new one";
         this.quickPick.items = this.menuItems;
         this.quickPick.matchOnDetail = true;
 
@@ -75,15 +75,25 @@ export class AddFeedback implements ExtensionCommand {
                 promise = this.notion.updatePage((this.quickPick.selectedItems[0] as any).pageId, this.context.path, this.context.selection);
             }
 
-            promise.then(() => vscode.window.showInformationMessage("Feedback sent to Notion."))
-                .catch((error) => displayError("An error occured during API call", error));
-            this.quickPick.hide();
+            promise
+                .then((url) => {
+                    const buttonText = "See on Notion";
+                    vscode.window.showInformationMessage("Feedback sent to Notion.", buttonText).then(value => {
+                        if (value === buttonText) {
+                            vscode.env.openExternal(vscode.Uri.parse(url));
+                        }
+                    });
+                })
+                .catch((error) => displayError("An error occured during API call", error))
+                .finally(() => {
+                    this.quickPick.hide();
+                    // reset the menu with only the default item for creating feedback
+                    this.menuItems = [this.createFeedbackMenuItem];
+                });
         });
 
         this.quickPick.onDidHide(() => {
             this.quickPick.dispose();
-            // reset the menu with only the default item for creating feedback
-            this.menuItems = [this.createFeedbackMenuItem];
         });
 
         this.quickPick.show();
