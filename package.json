@@ -3,7 +3,7 @@
   "displayName": "Code feedbacks to Notion",
   "publisher": "etiennedg",
   "description": "A simple way to add feedbacks on pieces of code and store them on Notion",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "engines": {
     "vscode": "^1.62.0"
